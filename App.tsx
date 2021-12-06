@@ -8,10 +8,9 @@ import {
   Text,
   View,
 } from 'react-native';
+import styles from './styles';
 
 const { width, height } = Dimensions.get('window');
-
-const screenRatio = height / width;
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState<boolean>();
@@ -61,8 +60,8 @@ export default function App() {
   }
 
   return (
-    <View style={styles['flex-1']}>
-      <View style={styles['flex-1']} onLayout={onCameraContainerLayout}>
+    <View style={styles.flex1}>
+      <View style={styles.flex1} onLayout={onCameraContainerLayout}>
         <Camera
           ref={camera}
           style={cameraSize}
@@ -71,7 +70,7 @@ export default function App() {
         />
       </View>
 
-      <View style={styles['flex-1']}>
+      <View style={styles.flex1}>
         <Text>{qr || 'Scan to read QR'}</Text>
 
         {!isScanEnabled && (
@@ -81,9 +80,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  'flex-1': {
-    flex: 1,
-  },
-});

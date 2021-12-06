@@ -11,6 +11,7 @@ import {
 import styles from './styles';
 
 const { width, height } = Dimensions.get('window');
+const screenRatio = height / width;
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState<boolean>();
@@ -31,15 +32,17 @@ export default function App() {
     })();
   }, []);
 
-  const onCameraContainerLayout = (event: LayoutChangeEvent) => {
-    const {
-      layout: { height, width },
-    } = event.nativeEvent;
+  const onCameraReady = async () => {
+    const supportedRatios =
+      (await camera.current?.getSupportedRatiosAsync()) || [];
 
-    setCameraSize({
-      height,
-      width: (height * 3) / 4,
-    });
+    console.log('Supported ratios:');
+    for (let ratio of supportedRatios) {
+      const [ratioHeight, ratioWidth] = ratio.split(':').map(x => +x);
+      const ratioNumber = ratioHeight / ratioWidth;
+      console.log(`${ratio}:\t ${ratioNumber}`);
+    }
+    console.log('Device screen ratio:', screenRatio);
   };
 
   const onBarCodeScanned = (result: BarCodeScanningResult) => {
@@ -60,15 +63,17 @@ export default function App() {
   }
 
   return (
-    <View style={styles.flex1}>
-      <View style={styles.flex1} onLayout={onCameraContainerLayout}>
-        <Camera
-          ref={camera}
-          style={cameraSize}
-          onBarCodeScanned={isScanEnabled ? onBarCodeScanned : undefined}
-          ratio="4:3"
-        />
-      </View>
+    <View style={[styles.flex1, styles.relative]}>
+      <Camera
+        ref={camera}
+        onCameraReady={onCameraReady}
+        style={{
+          width: width,
+          height: width,
+        }}
+        onBarCodeScanned={isScanEnabled ? onBarCodeScanned : undefined}
+        ratio="16:9"
+      />
 
       <View style={styles.flex1}>
         <Text>{qr || 'Scan to read QR'}</Text>
